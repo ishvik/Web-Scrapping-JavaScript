@@ -4,13 +4,13 @@ let wd = require("selenium-webdriver");
 
 let browser = new wd.Builder().forBrowser('chrome').build();
 let cmds = process.argv.slice(2);
-let matchid = cmds[0];
-let innings = cmds[1];
+let matchid = 30880;
+let innings = 1;
 let batsmencols = ["PlayerName","out","runs","ballsplayed","fours","six","sr"];
 let i1batsmen = [];
 
 async function batsmen(){
-    await browser.get(`https://www.cricbuzz.com/live-cricket-scores/30880/${matchid}`);
+    await browser.get(`https://www.cricbuzz.com/live-cricket-scores/${matchid}`);
     await browser.wait(wd.until.elementLocated(wd.By.css(".cb-nav-bar a")));
     let buttons = await browser.findElements(wd.By.css(".cb-nav-bar a"));
     await buttons[1].click();
@@ -30,8 +30,25 @@ async function batsmen(){
     console.log(i1batsmen);
 }
 
+let bowlersdata = ["Players_Name","O","M","R","W","NB","WD","ECO"];
+let ibowler = [];
 async function bowler(){
-    
+    await browser.get(`https://www.cricbuzz.com/live-cricket-scores/${matchid}`);
+    await browser.wait(wd.until.elementLocated(wd.By.css(".cb-nav-bar a")));
+    let buttons = await browser.findElements(wd.By.css(".cb-nav-bar a"));
+    await buttons[1].click();
+    await browser.wait(wd.until.elementLocated(wd.By.css(`#innings_${innings} .cb-col.cb-col-100.cb-ltst-wgt-hdr`)));
+    let tables = await browser.findElements(wd.By.css(`#innings_${innings} .cb-col.cb-col-100.cb-ltst-wgt-hdr`));
+    let bowler = await tables[1].findElements(wd.By.css(".cb-col.cb-col-100.cb-scrd-itms"));
+    for(let i=0;i<bowler.length;i++){
+        let col = await bowler[i].findElements(wd.By.css("div"));
+        let data = {};
+        for(j in col){
+            data[bowlersdata[j]] = await col[j].getAttribute("innerText");
+        }
+        ibowler.push(data);
+    }
+    console.log(ibowler);
 }
 
-batsmen();
+bowler();
